@@ -1,1 +1,1 @@
-# friend_filter
+# geo-otzyv project
