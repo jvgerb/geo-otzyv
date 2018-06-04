@@ -12,12 +12,12 @@ import './styles/index.scss';
 import View from './View';
 import Model from './Model';
 import Controller from './Controller';
-import LocalRepository from './LocalRepository';
+import ServerProxy from './ServerProxy';
 
 const model = new Model();
-const view = new NView();
-const localRepository = new LocalRepository();
+const view = new View();
+const serverProxy = new ServerProxy();
 
-const controller = new NewController(view, model, localRepository);
+const controller = new Controller(view, model, serverProxy);
 
 export default controller;

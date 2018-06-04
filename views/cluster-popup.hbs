@@ -1,0 +1,34 @@
+<div class="cluster-popup">
+<div class="left-arrow"></div>
+    <div>
+
+    </div>
+    <div>
+        
+    </div>
+<div class="center-feedback">
+    {{#each feedbacks}}
+        <div class="feedback">
+            <div class="feedback-header">
+                <div class="place">{{place}}</div>
+                <div class="address">
+                    <a class="cluster-link" name="{{address-code}}">{{address}}</a>
+                </div>
+                <div class="feedback-msg">{{message}}</div>
+            </div>
+            <div class="date">{{date}}</div>
+        </div>
+    {{/each}}
+</div>
+<div class="right-arrow">
+    <div class="cluster-close-btn">
+        <img src="src/icons/cluster-x.png" alt="x" id="cluster-close"/>
+    </div>
+    <div>
+        
+    </div>
+</div>
+
+<div class="paging"></div>
+
+</div>

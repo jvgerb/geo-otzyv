@@ -2,12 +2,20 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>{{htmlWebpackPlugin.options.title}}</title>
+  <title>Гео Отзыв</title>
   <script src='http://vk.com/js/api/openapi.js' type='text/javascript'></script>
+  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+
 </head>
 <body>
-    <div class="wrapper">
-        {{>"./index-content.hbs"}}
+    <div class="overlays">
+        <div class="address-overlay">
+
+        </div>
+        <div class="cluster-overlay">
+          
+        </div>
     </div>
+    <div id="map"></div>
 </body>
 </html>

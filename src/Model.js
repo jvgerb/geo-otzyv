@@ -1,11 +1,8 @@
-import { EventEmitter } from './helpers';
-
 /**
  * Model - Базовый класс модели
  */
-export default class Model extends EventEmitter {
+export default class Model {
     constructor() {
-        super();
 
     }
 
