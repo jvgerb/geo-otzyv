@@ -14,3 +14,12 @@ html {
 .display-none {
     display: none!important;
 }
+
+.container {
+    position: relative;
+}
+
+#address-overlay,
+#cluster-overlay {
+    position: absolute, top: 200px, left: 200px;
+}
