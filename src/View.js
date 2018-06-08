@@ -8,11 +8,12 @@ export default class View {
     constructor() {
         this.addressPopupDiv = document.querySelector('#address-overlay');
         this.clusterPopupDiv = document.querySelector('#cluster-overlay');
-        this.centerFeedback = document.querySelector('#center-feedback');
 
-        this.addressCloseBtn = document.querySelector('#address-close');
-        this.clusterCloseBtn = document.querySelector('#cluster-close');
-        this.addFeedbackBtn = document.querySelector('#add-feedback');
+        // this.centerFeedback = document.querySelector('#center-feedback');
+
+        // this.addressCloseBtn = document.querySelector('#address-close');
+        // this.clusterCloseBtn = document.querySelector('#cluster-close');
+        // this.addFeedbackBtn = document.querySelector('#add-feedback');
 
         // мэппинг между именем шаблона и функцией рендера
         this.renderMap = new Map(
@@ -67,50 +68,65 @@ export default class View {
         toggleVisibility(this.clusterPopupDiv, false);
     }
 
+    // отправить отзыв
+    sendFeedback() {
+        // TODO
+        // отправить отзыв контроллеру и обновить список отзывов в попапе
+        // из тех, что вернет контроллер
+        // либо чтобы контроллер обновил данные в полях для двойных привязок
+    }
+
+    // клик по ссылке адреса из карусели
+    openAddressPopupFromCluster(e) {
+        e.preventDefault();
+        this.closeClusterPopup();
+
+        const addressCode = e.target.getAttribute('name');
+
+        if (!addressCode) {
+            return;
+        }
+
+        // TODO
+        // передать контроллеру addressCode, чтобы тот получил данные по адресу и открыл попап
+        // либо чтобы обновил данные в полях для двойных привязок и открыл попап
+    }
+
     addEventListeners() {
-        // клик по ссылке адреса из карусели
-        this.centerFeedback.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('cluster-link')) {
+
+        // вешаем все на документ, потому что остальные элементы
+        // будут созданы позже
+        document.addEventListener('click', (e) => {
+
+            // клик по ссылке адреса из карусели
+            if (e.target.classList.contains('cluster-link')) {
+                this.openAddressPopupFromCluster(e);
+
                 return;
             }
-            e.preventDefault();
-            this.closeClusterPopup();
 
-            const addressCode = e.target.getAttribute('name');
+            switch (e.target) {
+                // закрыть попап с адресом
+                case this.addressCloseBtn:
+                    this.closeAddressPopup();
+                    break;
+                    // закрыть попап с кластером
+                case this.clusterCloseBtn:
+                    this.closeClusterPopup();
+                    break;
+                    // отправить отзыв
+                case this.addFeedbackBtn:
+                    this.sendFeedback();
+                    break;
+                    // перемотка карусели влево
 
-            if (!addressCode) {
-                return;
+                    // перемотка карусели вправо
+
+                    // переход на отзыв № в карусели
+                default:
+                    break;
             }
-
-            // TODO
-            // передать контроллеру addressCode, чтобы тот получил данные по адресу и открыл попап
-            // либо чтобы обновил данные в полях для двойных привязок и открыл попап
-        });
-
-        // закрыть попап с адресом
-        this.addressCloseBtn.addEventListener('click', () => {
-            this.closeAddressPopup();
-        });
-
-        // закрыть попап с кластером
-        this.clusterCloseBtn.addEventListener('click', () => {
-            this.closeClusterPopup();
-        });
-
-        // Отправить отзыв
-        this.addFeedbackBtn.addEventListener('click', () => {
-
-            // TODO
-            // отправить отзыв контроллеру и обновить список отзывов в попапе
-            // из тех, что вернет контроллер
-            // либо чтобы контроллер обновил данные в полях для двойных привязок
-        });
-
-        // перемотка карусели влево
-
-        // перемотка карусели вправо
-
-        // переход на отзыв № в карусели
+        })
     }
 }
 

@@ -35,7 +35,8 @@ export function Address(addressString, addressCode) {
 export function AddressInfo(addressString, addressCode, feedbacks) {
     return {
         address: new Address(addressString, addressCode),
-        feedbacks: feedbacks
+        feedbacks: feedbacks,
+        hasFeedbacks: feedbacks && feedbacks.length
     }
 }
 

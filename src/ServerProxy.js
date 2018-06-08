@@ -1,4 +1,4 @@
-import AddressInfo from '../models/addressInfo';
+import AddressInfo from './models/AddressInfo';
 
 /**
  * Класс предоставляет доступ к данным в localStorage
