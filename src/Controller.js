@@ -18,12 +18,25 @@ export default class Controller {
     }
 
     init() {
-        new Promise(resolve => ymaps.ready(resolve)) // ждем загрузку карты
+        this.loadMap()
+            // загрузка имеющихся меток с сервера
+            .then(() => this.serverProxy.getAllFeedbacks())
+            .then((feedbacks) => {
+                console.log(feedbacks);
+
+                return feedbacks;
+            })
+            .catch(err => console.log(err));
+    }
+
+    loadMap() {
+        // ждем загрузку карты
+        return new Promise(resolve => ymaps.ready(resolve))
             // инициализация карты
             .then(() => {
                 this.myMap = new ymaps.Map('map', {
                     center: [47.23, 38.90], // Таганрог
-                    zoom: 13
+                    zoom: 15
                 }, {
                     searchControlProvider: 'yandex#search'
                 });
@@ -34,13 +47,30 @@ export default class Controller {
                 });
 
                 this.myMap.geoObjects.add(this.clusterer);
-            })
-            // загрузка имеющихся меток с сервера
-            .then(() => this.serverProxy.getAllFeedbacks())
-            .then((feedbacks) => {
-                console.log(feedbacks);
 
-                return feedbacks;
+                // замена дефолтного курсора
+                this.myMap.cursors.push('pointer');
+
+                var self = this;
+
+                this.myMap.events.add('click', function(e) {
+
+                    // if (!this.myMap.balloon.isOpen()){
+
+                    // } else {
+                    //     this.myMap.balloon.close();
+                    // }
+
+                    // Получение координат щелчка
+                    var coords = e.get('coords');
+
+                    new Promise((resolve) => resolve(self.getGeoCode(coords)))
+                        .then((address) => {
+                            alert(address);
+                            console.log(address);
+                        })
+                        .catch(err => console.log(err));
+                });
             });
     }
 
@@ -78,22 +108,33 @@ export default class Controller {
 
     // private functions
 
-    getGeoCode(address) {
-        if (this.addressCache.has(address)) {
-            return Promise.resolve(this.addressCache.get(address));
+    getGeoCode(addressCode) {
+        const addressCodeFixed = addressCode
+            .map(i => +i.toFixed(2));
+
+        if (this.addressCache.has(addressCodeFixed)) {
+            console.log(`take address from cache addressString ${this.addressCache.get(addressCode)}`);
+
+            return Promise.resolve(this.addressCache.get(addressCodeFixed));
         }
 
-        return ymaps.geocode(address)
+        return ymaps.geocode(addressCode)
             .then(result => {
                 const points = result.geoObjects.toArray();
 
                 if (points.length) {
-                    const coors = points[0].geometry.getCoordinates();
+                    const firstGeoObject = points[0];
 
-                    this.addressCache.set(address, coors);
+                    const addressString = firstGeoObject.getAddressLine();
 
-                    return coors;
+                    const addressCodeFixed = addressCode
+                        .map(i => +i.toFixed(2));
+
+                    this.addressCache.set(addressCodeFixed, addressString);
+
+                    return addressString;
                 }
-            });
+            })
+            .catch(err => console.log(err));
     }
 }

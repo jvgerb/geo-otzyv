@@ -17,19 +17,23 @@ export function Feedback(place, msg, userName, date) {
 /**
  * Данные об адресе
  * @param {string} addressString - строка адреса
- * @param {string} addressCode - геокод адреса
+ * @param {string} addressCodeX - геокод адреса - широта
+ * @param {string} addressCodeY - геокод адреса - долгота
  */
-export function Address(addressString, addressCode) {
+export function Address(addressString, { addressCodeX, addressCodeY }) {
     return {
         addressString: addressString,
-        addressCode: addressCode
+        addressCode: {
+            addressCodeX: addressCodeX,
+            addressCodeY: addressCodeY
+        }
     }
 }
 
 /**
  * Единичный адрес с отзывами
  * @param {string} addressString - строка адреса
- * @param {string} addressCode - геокод адреса
+ * @param {object} addressCode - геокод адреса { addressCodeX, addressCodeY }
  * @param {Feedback} feedbacks - массив отзывов
  */
 export function AddressInfo(addressString, addressCode, feedbacks) {
@@ -43,7 +47,7 @@ export function AddressInfo(addressString, addressCode, feedbacks) {
 /**
  * Единичный отзыв, включащий данные об адресе
  * @param {string} addressString - строка адреса
- * @param {string} addressCode - геокод адреса
+ * @param {object} addressCode - геокод адреса { addressCodeX, addressCodeY }
  * @param {string} place - Место
  * @param {string} msg - Сообщение
  * @param {string} userName - Юзер
