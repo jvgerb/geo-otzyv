@@ -1,45 +1,42 @@
+import { EventEmitter } from './helpers';
+
 /**
  * Model - Базовый класс модели
  */
-export default class Model {
+export default class Model extends EventEmitter {
     constructor() {
+        super();
+
+        // текущий выбранный адрес со всеми отзывами
+        this.currentAddress = null;
+
+        // текущий выбранный кластер со всеми адресами и отзывами
+        this.currentCluster = null;
 
     }
 
-    // получение значения свойства field из модели
-    read(field) {
-        return this[field];
+    getCurrentAddress() {
+        return this.currentAddress;
     }
 
-    // поиск всех элементов в массиве modelField, чье поле searchField содержит в себе подстроку value
-    searchBy({ modelField, searchField, value }) {
-
-        return this[modelField].filter((item) => {
-            const itemField = item[searchField].toLowerCase();
-
-            return itemField.includes(value.toLowerCase());
-        });
+    setCurrentAddress(addressInfo) {
+        updateProperty(this, 'currentAddress', addressInfo);
     }
 
-    // обновление свойства field модели значением data с последующим оповещением
-    // в случае обновления левого и правого видимого списка друзей
-    update(field, data) {
-        this[field] = data;
+    getCurrentCluster() {
+        return this.currentCluster;
     }
 
-    // инициализация модели выполняется из контроллера при старте приложения
-    init() {}
+    setCurrentCluster(clusterInfo) {
+        updateProperty(this, 'currentCluster', clusterInfo);
+    }
 }
 
-/**
- * Возвращает номер элемента в массиве list, у которого свойство id имеет указанное значение
- * @param {*} list 
- * @param {*} id 
- */
-function getItemIndexById(list, id) {
-    for (let i = 0; i < list.length; i++) {
-        if (list[i].id == id) {
-            return i;
-        }
-    }
+// private methods
+
+// обновление свойства field модели значением data с последующим оповещением
+function updateProperty(modelObj, field, data) {
+    modelObj[field] = data;
+
+    modelObj.emit(`${field}Updated`, modelObj[field]);
 }

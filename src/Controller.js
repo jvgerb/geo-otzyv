@@ -12,7 +12,10 @@ export default class Controller {
         this.myMap = null;
         this.clusterer = null;
 
-        this.addressCache = new Map();
+        // регистририуем обработчики событий для связи всех компонентов приложения между собой
+        // с помощью событий, адресованных друг к другу
+        this.initListeners();
+
         // логин и начальная загрузка страницы
         this.init();
     }
@@ -51,7 +54,7 @@ export default class Controller {
                 // замена дефолтного курсора
                 this.myMap.cursors.push('pointer');
 
-                var self = this;
+                const self = this;
 
                 this.myMap.events.add('click', function(e) {
 
@@ -64,10 +67,14 @@ export default class Controller {
                     // Получение координат щелчка
                     var coords = e.get('coords');
 
-                    new Promise((resolve) => resolve(self.getGeoCode(coords)))
+                    // new Promise(resolve => resolve(getGeoCode(coords)))
+
+                    getGeoCode(coords)
                         .then((address) => {
-                            alert(address);
                             console.log(address);
+
+                            self.model.setCurrentAddress({ addressString: address });
+                            self.view.openAddressPopup();
                         })
                         .catch(err => console.log(err));
                 });
@@ -106,35 +113,35 @@ export default class Controller {
             .catch((e) => console.log(e));
     }
 
-    // private functions
+    initListeners() {
+        // подписка view на обновление данных о текущем выбранном адресе в модели
+        this.model.on('currentAddressUpdated', (addressInfo) => {
+            this.view.renderAddressPopup(addressInfo);
+        });
 
-    getGeoCode(addressCode) {
-        const addressCodeFixed = addressCode
-            .map(i => +i.toFixed(2));
-
-        if (this.addressCache.has(addressCodeFixed)) {
-            console.log(`take address from cache addressString ${this.addressCache.get(addressCode)}`);
-
-            return Promise.resolve(this.addressCache.get(addressCodeFixed));
-        }
-
-        return ymaps.geocode(addressCode)
-            .then(result => {
-                const points = result.geoObjects.toArray();
-
-                if (points.length) {
-                    const firstGeoObject = points[0];
-
-                    const addressString = firstGeoObject.getAddressLine();
-
-                    const addressCodeFixed = addressCode
-                        .map(i => +i.toFixed(2));
-
-                    this.addressCache.set(addressCodeFixed, addressString);
-
-                    return addressString;
-                }
-            })
-            .catch(err => console.log(err));
+        // подписка view на обновление данных о текущем выбранном кластере в модели
+        this.model.on('currentClusterUpdated', (clusterInfo) => {
+            this.view.renderClusterPopup(clusterInfo);
+        });
     }
+}
+
+// private methods
+
+function getGeoCode(addressCode) {
+    return ymaps.geocode(addressCode)
+        .then(result => {
+            const points = result.geoObjects.toArray();
+
+            if (points.length) {
+                const firstGeoObject = points[0];
+
+                const addressString = firstGeoObject.getAddressLine();
+
+                return addressString;
+            }
+
+            return null;
+        })
+        .catch(err => console.log(err));
 }

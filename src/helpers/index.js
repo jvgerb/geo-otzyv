@@ -1,5 +1,5 @@
-// import debounce from './debounce';
+import EventEmitter from './EventEmitter';
 
-// export {
-//     debounce
-// };
+export {
+    EventEmitter
+};

@@ -1,12 +1,12 @@
 ﻿<div class="address-popup">
     <div class="address-header">
-        <div class="address">{{address}}</div>
+        <div class="address">{{addressString}}</div>
         <div class="popup-close-btn">
             <img src="src/icons/x.png" alt="x" id="address-close"/>
         </div>
     </div>
 
-    {{#if hasFeedbacks}}
+    {{!-- {{#if hasFeedbacks}}
         <div class="empty">Отзывов пока нет</div>
     {{else}}
     {{#each feedbacks}}
@@ -19,15 +19,13 @@
             <div class="feedback-msg">{{message}}</div>
         </div>
     {{/each}}
-    {{/if}}
+    {{/if}} --}}
 
     <div class="new-feedback">
         <h3>ВАШ ОТЗЫВ</h3>
-        <form>
-            <input type="text" placeholder="Ваше имя"/>
-            <input type="text" placeholder="Укажите место"/>
-            <input type="textarea" placeholder="Поделитесь впечатлениями"/>
-            <button class="add-feedback">Добавить</button>
-        </form>
+        <input type="text" placeholder="Ваше имя"/>
+        <input type="text" placeholder="Укажите место"/>
+        <input type="textarea" placeholder="Поделитесь впечатлениями"/>
+        <button id="add-feedback">Добавить</button>
     </div>
 </div>
