@@ -1,5 +1,4 @@
 import { EventEmitter } from './helpers';
-import { EPROTONOSUPPORT } from 'constants';
 
 export default class Model extends EventEmitter {
     constructor() {
@@ -21,12 +20,15 @@ export default class Model extends EventEmitter {
                 }, {
                     searchControlProvider: 'yandex#search'
                 });
+
+                // создаем макет содержимого кластера
+                const customItemContentLayout = createClusterBalloonTemplate();
+
                 this.clusterer = new ymaps.Clusterer({
                     preset: 'islands#invertedDarkorangeClusterIcons',
                     clusterDisableClickZoom: true,
-                    openBalloonOnClick: true,
-                    balloonContentBodyLayout: 'cluster#balloonCarouselContent'
-
+                    clusterBalloonContentLayout: 'cluster#balloonCarousel',
+                    clusterBalloonItemContentLayout: customItemContentLayout,
                 });
 
                 this.myMap.geoObjects.add(this.clusterer);
@@ -35,25 +37,33 @@ export default class Model extends EventEmitter {
                 this.myMap.cursors.push('pointer');
 
                 addGeoObjectClickHandler(this.myMap, this);
+
+                const self = this;
+
+                this.clusterer.events.add('balloonopen', function(e) {
+                    const t = self.clusterer.geoObjects;
+
+                    // var objectState = this.clusterer.getObjectState(this.clusterer.geoObjects[0]);
+
+                    // if (objectState.isClustered) {
+                    //     // Если метка находится в кластере, выставим ее в качестве активного объекта.
+                    //     // Тогда она будет "выбрана" в открытом балуне кластера.
+                    //     objectState.cluster.state.set('activeObject', this.clusterer.geoObjects[0]);
+                    //     // clusterer.balloon.open(objectState.cluster);
+                    // }
+                    //    this.clusterer.properties.set('balloonContent', 'newContent');
+                });
+
+
             });
     }
 
-    addPlacemark(coords) {
-        const pm = new ymaps.Placemark(coords, {}, { preset: 'islands#darkOrangeDotIcon' });
-
-        addGeoObjectClickHandler(pm, this);
-
-        this.clusterer.add(pm);
+    addPlacemark(feedback) {
+        this.clusterer.add(createPlacemark(feedback, this));
     }
 
     addPlacemarks(feedbacks) {
-        const placemarks = feedbacks.map(item => {
-            const pm = new ymaps.Placemark(item.coordinates, {}, { preset: 'islands#darkOrangeDotIcon' })
-
-            addGeoObjectClickHandler(pm, this);
-
-            return pm;
-        });
+        const placemarks = feedbacks.map(item => createPlacemark(item, this));
 
         this.clusterer.add(placemarks);
     }
@@ -98,4 +108,36 @@ function addGeoObjectClickHandler(obj, map) {
             })
             .catch(err => console.log(err));
     });
+}
+
+/**
+ * Создание кастомного шаблона для баллуна кластера
+ */
+function createClusterBalloonTemplate() {
+    // Создаем собственный макет с информацией о выбранном геообъекте.
+    const tmpl = ymaps.templateLayoutFactory.createClass(
+        // Флаг "raw" означает, что данные вставляют "как есть" без экранирования html.
+        '<h2 class=balloon_header>{{ properties.balloonContentHeader|raw }}</h2>' +
+        '<div class=balloon_body>{{ properties.balloonContentBody|raw }}</div>' +
+        '<div class=balloon_footer>{{ properties.balloonContentFooter|raw }}</div>'
+    );
+
+    return tmpl;
+}
+
+/**
+ * Создание метки
+ * @param {PlaceFeedback} fb - данные об адресе и отзыве
+ *  @param {MapProvider} map -  Объект провайдера карты, оповещающий о событии
+ */
+function createPlacemark(fb, map) {
+    const pm = new ymaps.Placemark(fb.coordinates, {}, { preset: 'islands#darkOrangeDotIcon' });
+
+    addGeoObjectClickHandler(pm, map);
+
+    pm.balloonContentHeader = fb.feedback.place;
+    pm.balloonContentBody = fb.feedback.message;
+    pm.balloonContentFooter = fb.feedback.dateFormatted;
+
+    return pm;
 }

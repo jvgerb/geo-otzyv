@@ -44,19 +44,6 @@ export default class Controller {
             .catch((e) => console.log(e));
     }
 
-    // showClusterInfo(info) {
-    //     // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
-    //     new Promise((resolve) =>
-    //         resolve(this.serverProxy.getClusterFeedbacks(info.addresses))
-    //         .then((clusterFeedbacks) => {
-    //             // const addressInfo = new AddressInfo(info.address, feedbacks);
-
-    //             // this.model.setCurrentCluster(addressInfo);
-    //             this.view.openClusterPopup(clusterFeedbacks);
-    //         })
-    //         .catch((e) => console.log(e)));
-    // }
-
     addNewFeedback(newFeedback) {
         const currentAddress = this.model.getCurrentAddress();
 
@@ -71,7 +58,7 @@ export default class Controller {
             this.model.addAddressFeedback(nf.feedback);
 
             // добавляем метку на карту
-            this.mapProvider.addPlacemark(currentAddress.coordinates);
+            this.mapProvider.addPlacemark(nf);
         }
     }
 
