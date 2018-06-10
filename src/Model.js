@@ -30,6 +30,13 @@ export default class Model extends EventEmitter {
     setCurrentCluster(clusterInfo) {
         updateProperty(this, 'currentCluster', clusterInfo);
     }
+
+    addAddressFeedback(newFeedback) {
+        if (this.currentAddress) {
+            this.currentAddress.feedbacks.push(newFeedback);
+            this.emit('currentAddressUpdated', this.currentAddress);
+        }
+    }
 }
 
 // private methods

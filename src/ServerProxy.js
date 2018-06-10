@@ -1,5 +1,3 @@
-import AddressInfo from './models/AddressInfo';
-
 /**
  * Класс предоставляет доступ к данным в localStorage
  */
@@ -28,6 +26,7 @@ export default class ServerProxy {
         }
         const feedbacks = this.getAllFeedbacks();
 
+
         feedbacks.push(placeFeedback);
 
         localStorage.feedbacks = JSON.stringify(feedbacks);
@@ -36,10 +35,10 @@ export default class ServerProxy {
     /**
      * Выборка всех отзывов
      * @param {string} addressCode 
-     * @returns {[Feedback]} - возвращает массив отзывов в формате Feedback
+     * @returns {[PlaceFeedback]} - возвращает массив отзывов в формате PlaceFeedback
      */
-    getAddressFeedbacks(addressCode) {
-        if (!addressCode) {
+    getAddressFeedbacks(addressString) {
+        if (!addressString) {
             return [];
         }
         const feedbacks = this.getAllFeedbacks();
@@ -49,15 +48,14 @@ export default class ServerProxy {
         }
 
         const filtered = feedbacks
-            .filter(item => item.addressCode && item.address.addressCode === addressCode)
-            .sort(feedbackSort)
-            .map(f => f.feedback);
+            .filter(item => item.addressString === addressString)
+            .sort(feedbackSort);
 
         if (filtered.length === 0) {
             return [];
         }
 
-        return filtered[0];
+        return filtered;
     }
 
     /**

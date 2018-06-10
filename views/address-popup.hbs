@@ -6,7 +6,8 @@
         </div>
     </div>
 
-    {{!-- {{#if hasFeedbacks}}
+    <div class="feedbacks">
+    {{#if hasNoFeedbacks()}}
         <div class="empty">Отзывов пока нет</div>
     {{else}}
     {{#each feedbacks}}
@@ -19,13 +20,13 @@
             <div class="feedback-msg">{{message}}</div>
         </div>
     {{/each}}
-    {{/if}} --}}
-
+    {{/if}}
+    </div>
     <div class="new-feedback">
         <h3>ВАШ ОТЗЫВ</h3>
-        <input type="text" placeholder="Ваше имя"/>
-        <input type="text" placeholder="Укажите место"/>
-        <input type="textarea" placeholder="Поделитесь впечатлениями"/>
+        <input id="new-user" type="text" placeholder="Ваше имя" required/>
+        <input id="new-place" type="text" placeholder="Укажите место" required/>
+        <input id="new-opinion" type="textarea" placeholder="Поделитесь впечатлениями"  maxlength="500" required/>
         <button id="add-feedback">Добавить</button>
     </div>
 </div>

@@ -1,16 +1,16 @@
-import AddressInfo from './models/AddressInfo';
+import { PlaceFeedback, Feedback } from './models/AddressInfo';
+import { AddressInfo } from './models/AddressInfo';
 
 /**
  * Контроллер приложения. Синхронизирует модель и представление,
  * работает с источниками данных
  */
 export default class Controller {
-    constructor(view, model, serverProxy) {
+    constructor(view, model, serverProxy, mapProvider) {
         this.model = model;
         this.view = view;
         this.serverProxy = serverProxy;
-        this.myMap = null;
-        this.clusterer = null;
+        this.mapProvider = mapProvider;
 
         // регистририуем обработчики событий для связи всех компонентов приложения между собой
         // с помощью событий, адресованных друг к другу
@@ -21,96 +21,55 @@ export default class Controller {
     }
 
     init() {
-        this.loadMap()
+        this.mapProvider.loadMap()
             // загрузка имеющихся меток с сервера
             .then(() => this.serverProxy.getAllFeedbacks())
             .then((feedbacks) => {
-                console.log(feedbacks);
 
                 return feedbacks;
             })
             .catch(err => console.log(err));
     }
 
-    loadMap() {
-        // ждем загрузку карты
-        return new Promise(resolve => ymaps.ready(resolve))
-            // инициализация карты
-            .then(() => {
-                this.myMap = new ymaps.Map('map', {
-                    center: [47.23, 38.90], // Таганрог
-                    zoom: 15
-                }, {
-                    searchControlProvider: 'yandex#search'
-                });
-                this.clusterer = new ymaps.Clusterer({
-                    preset: 'islands#invertedVioletClusterIcons',
-                    clusterDisableClickZoom: true,
-                    openBalloonOnClick: false
-                });
-
-                this.myMap.geoObjects.add(this.clusterer);
-
-                // замена дефолтного курсора
-                this.myMap.cursors.push('pointer');
-
-                const self = this;
-
-                this.myMap.events.add('click', function(e) {
-
-                    // if (!this.myMap.balloon.isOpen()){
-
-                    // } else {
-                    //     this.myMap.balloon.close();
-                    // }
-
-                    // Получение координат щелчка
-                    var coords = e.get('coords');
-
-                    // new Promise(resolve => resolve(getGeoCode(coords)))
-
-                    getGeoCode(coords)
-                        .then((address) => {
-                            console.log(address);
-
-                            self.model.setCurrentAddress({ addressString: address });
-                            self.view.openAddressPopup();
-                        })
-                        .catch(err => console.log(err));
-                });
-            });
-    }
-
-    showAddressInfo(address) {
+    showAddressInfo(addressString) {
         // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
-        new Promise((resolve) => {
-                const feedbacks = this.serverProxy.getAddressFeedbacks(address.addressCode);
+        new Promise((resolve) => resolve(this.serverProxy.getAddressFeedbacks(addressString)))
+            .then((fb) => {
+                const feedbacks = fb.map(f => f.feedback);
+                const addressInfo = new AddressInfo(addressString, feedbacks);
 
-                resolve();
-
-                return feedbacks;
-            })
-            .then((feedbacks) => {
-                const addressInfo = new AddressInfo(address.addressString, address.addressCode, feedbacks);
-
-                this.view.openAddressPopup(addressInfo);
+                this.model.setCurrentAddress(addressInfo);
+                this.view.openAddressPopup();
             })
             .catch((e) => console.log(e));
     }
 
-    showClusterInfo(addresses) {
+    showClusterInfo(info) {
         // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
-        new Promise((resolve) => {
-                const clusterFeedbacks = this.serverProxy.getClusterFeedbacks(addresses);
-
-                resolve();
-
-                return clusterFeedbacks;
-            })
+        new Promise((resolve) =>
+            resolve(this.serverProxy.getClusterFeedbacks(info.addresses))
             .then((clusterFeedbacks) => {
+                // const addressInfo = new AddressInfo(info.address, feedbacks);
+
+                // this.model.setCurrentCluster(addressInfo);
                 this.view.openClusterPopup(clusterFeedbacks);
             })
-            .catch((e) => console.log(e));
+            .catch((e) => console.log(e)));
+    }
+
+    addNewFeedback(newFeedback) {
+        const currentAddress = this.model.getCurrentAddress();
+
+        if (currentAddress && currentAddress.addressString) {
+            const nf = new PlaceFeedback(currentAddress.addressString,
+                newFeedback.place, newFeedback.opinion, newFeedback.user, new Date());
+
+            // отправляем отзыв на сервер
+            this.serverProxy.addAddressFeedBack(nf);
+
+            // добавляем отзыв к списку текущих отзывов модели
+            this.model.addAddressFeedback(nf.feedback);
+        }
     }
 
     initListeners() {
@@ -123,25 +82,15 @@ export default class Controller {
         this.model.on('currentClusterUpdated', (clusterInfo) => {
             this.view.renderClusterPopup(clusterInfo);
         });
-    }
-}
 
-// private methods
-
-function getGeoCode(addressCode) {
-    return ymaps.geocode(addressCode)
-        .then(result => {
-            const points = result.geoObjects.toArray();
-
-            if (points.length) {
-                const firstGeoObject = points[0];
-
-                const addressString = firstGeoObject.getAddressLine();
-
-                return addressString;
-            }
-
-            return null;
+        // подписка контроллера на изменение выбранного адреса на карте
+        this.mapProvider.on('currentAddressChanged', (info) => {
+            this.showAddressInfo(info.address);
         })
-        .catch(err => console.log(err));
+
+        // подписка контроллера на добавление нового отзыва
+        this.view.on('newFeedbackAdded', (newFeedback) => {
+            this.addNewFeedback(newFeedback);
+        });
+    }
 }

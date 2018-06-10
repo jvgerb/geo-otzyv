@@ -61,10 +61,18 @@ export default class View extends EventEmitter {
 
     // отправить отзыв
     sendFeedback() {
-        // TODO
-        // отправить отзыв контроллеру и обновить список отзывов в попапе
-        // из тех, что вернет контроллер
-        // либо чтобы контроллер обновил данные в полях для двойных привязок
+
+        const newUser = document.querySelector('#new-user');
+        const newPlace = document.querySelector('#new-place');
+        const newOpinion = document.querySelector('#new-opinion');
+
+        if (newUser.value && newPlace.value && newOpinion.value) {
+            this.emit('newFeedbackAdded', {
+                user: newUser.value,
+                place: newPlace.value,
+                opinion: newOpinion.value
+            })
+        }
     }
 
     // клик по ссылке адреса из карусели
