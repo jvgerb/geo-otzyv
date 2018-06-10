@@ -53,21 +53,16 @@ export default class View extends EventEmitter {
         }
     }
 
-    // // клик по ссылке адреса из карусели
-    // openAddressPopupFromCluster(e) {
-    //     e.preventDefault();
-    //     this.closeClusterPopup();
+    // клик по ссылке адреса из карусели
+    openAddressPopupFromCluster(a) {
+        const addressString = a.innerText;
 
-    //     const addressString = e.target.getAttribute('name');
+        if (!addressString) {
+            return;
+        }
 
-    //     if (!addressString) {
-    //         return;
-    //     }
-
-    //     // TODO
-    //     // передать контроллеру addressCode, чтобы тот получил данные по адресу и открыл попап
-    //     // либо чтобы обновил данные в полях для двойных привязок и открыл попап
-    // }
+        this.emit('clusterLinkClicked', addressString);
+    }
 
     // Заполняет шаблон из .hbs-файла данными из переданного объекта и вставляет их в html страницы
     render(templateName, model) {
@@ -87,11 +82,10 @@ export default class View extends EventEmitter {
         // вешаем все на документ, потому что остальные элементы
         // будут созданы позже
         document.addEventListener('click', (e) => {
-
             // клик по ссылке адреса из карусели
-            if (e.target.classList.contains('cluster-link')) {
-                alert('cluster-link click');
-                this.openAddressPopupFromCluster(e);
+            if (e.target.classList.contains('balloon-link')) {
+                e.preventDefault();
+                this.openAddressPopupFromCluster(e.target);
 
                 return;
             }

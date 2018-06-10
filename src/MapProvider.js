@@ -25,6 +25,7 @@ export default class Model extends EventEmitter {
                 this.clusterer = new ymaps.Clusterer({
                     preset: 'islands#invertedDarkorangeClusterIcons',
                     clusterDisableClickZoom: true,
+                    clusterOpenBalloonOnClick: true,
                     clusterBalloonContentLayout: 'cluster#balloonCarousel',
                     clusterBalloonItemContentLayout: customItemContentLayout,
                 });
@@ -62,6 +63,10 @@ export default class Model extends EventEmitter {
         const placemarks = feedbacks.map(item => createPlacemark(item, this));
 
         this.clusterer.add(placemarks);
+    }
+
+    closeClusterBalloon() {
+        this.clusterer.balloon.close();
     }
 }
 
@@ -113,9 +118,10 @@ function createClusterBalloonTemplate() {
     // Создаем собственный макет с информацией о выбранном геообъекте.
     const tmpl = ymaps.templateLayoutFactory.createClass(
         // Флаг "raw" означает, что данные вставляют "как есть" без экранирования html.
-        '<h2 class=balloon_header>{{ properties.balloonContentHeader|raw }}</h2>' +
-        '<div class=balloon_body>{{ properties.balloonContentBody|raw }}</div>' +
-        '<div class=balloon_footer>{{ properties.balloonContentFooter|raw }}</div>'
+        '<h2 class=balloon-header>{{ properties.place|raw }}</h2>' +
+        '<a href="#" class=balloon-link>{{ properties.address|raw }}</a>' +
+        '<div class=balloon-body>{{ properties.message|raw }}</div>' +
+        '<div class=balloon-footer>{{ properties.dateFormatted|raw }}</div>'
     );
 
     return tmpl;
@@ -127,13 +133,14 @@ function createClusterBalloonTemplate() {
  *  @param {MapProvider} map -  Объект провайдера карты, оповещающий о событии
  */
 function createPlacemark(fb, map) {
-    const pm = new ymaps.Placemark(fb.coordinates, {}, { preset: 'islands#darkOrangeDotIcon' });
+    const pm = new ymaps.Placemark(fb.coordinates, {
+        place: fb.feedback.place,
+        message: fb.feedback.message,
+        dateFormatted: fb.feedback.dateFormatted,
+        address: fb.addressString
+    }, { preset: 'islands#darkOrangeDotIcon' });
 
     addGeoObjectClickHandler(pm, map);
-
-    pm.balloonContentHeader = fb.feedback.place;
-    pm.balloonContentBody = fb.feedback.message;
-    pm.balloonContentFooter = fb.feedback.dateFormatted;
 
     return pm;
 }

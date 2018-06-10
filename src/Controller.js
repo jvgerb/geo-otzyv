@@ -63,15 +63,24 @@ export default class Controller {
         }
     }
 
+    showAddressFromCluster(addressString) {
+        // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
+        new Promise((resolve) => resolve(this.serverProxy.getAddressFeedbacks(addressString)))
+            .then((fb) => {
+                const feedbacks = fb.map(f => f.feedback);
+                const addressInfo = new AddressInfo(addressString, null, feedbacks);
+
+                this.model.setCurrentAddress(addressInfo);
+                this.mapProvider.closeClusterBalloon();
+                this.view.openAddressPopup();
+            })
+            .catch((e) => console.log(e));
+    }
+
     initListeners() {
         // подписка view на обновление данных о текущем выбранном адресе в модели
         this.model.on('currentAddressUpdated', (addressInfo) => {
             this.view.renderAddressPopup(addressInfo);
-        });
-
-        // подписка view на обновление данных о текущем выбранном кластере в модели
-        this.model.on('currentClusterUpdated', (clusterInfo) => {
-            this.view.renderClusterPopup(clusterInfo);
         });
 
         // подписка контроллера на изменение выбранного адреса на карте
@@ -82,6 +91,11 @@ export default class Controller {
         // подписка контроллера на добавление нового отзыва
         this.view.on('newFeedbackAdded', (newFeedback) => {
             this.addNewFeedback(newFeedback);
+        });
+
+        // подписка контроллера на клик по ссылке в кластере
+        this.view.on('clusterLinkClicked', (addressString) => {
+            this.showAddressFromCluster(addressString);
         });
     }
 }
