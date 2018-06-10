@@ -5,8 +5,6 @@ export default class Model extends EventEmitter {
         super();
         this.myMap = null;
         this.clusterer = null;
-
-        // инициализация карты
     }
 
     loadMap() {
@@ -38,23 +36,21 @@ export default class Model extends EventEmitter {
 
                 addGeoObjectClickHandler(this.myMap, this);
 
-                const self = this;
+                // const self = this;
 
-                this.clusterer.events.add('balloonopen', function(e) {
-                    const t = self.clusterer.geoObjects;
+                // this.clusterer.events.add('balloonopen', function(e) {
+                //     const t = self.clusterer.geoObjects;
 
-                    // var objectState = this.clusterer.getObjectState(this.clusterer.geoObjects[0]);
+                //     // var objectState = this.clusterer.getObjectState(this.clusterer.geoObjects[0]);
 
-                    // if (objectState.isClustered) {
-                    //     // Если метка находится в кластере, выставим ее в качестве активного объекта.
-                    //     // Тогда она будет "выбрана" в открытом балуне кластера.
-                    //     objectState.cluster.state.set('activeObject', this.clusterer.geoObjects[0]);
-                    //     // clusterer.balloon.open(objectState.cluster);
-                    // }
-                    //    this.clusterer.properties.set('balloonContent', 'newContent');
-                });
-
-
+                //     // if (objectState.isClustered) {
+                //     //     // Если метка находится в кластере, выставим ее в качестве активного объекта.
+                //     //     // Тогда она будет "выбрана" в открытом балуне кластера.
+                //     //     objectState.cluster.state.set('activeObject', this.clusterer.geoObjects[0]);
+                //     //     // clusterer.balloon.open(objectState.cluster);
+                //     // }
+                //     //    this.clusterer.properties.set('balloonContent', 'newContent');
+                // });
             });
     }
 

@@ -1,4 +1,4 @@
-import { PlaceFeedback, Feedback } from './models/AddressInfo';
+import { PlaceFeedback } from './models/AddressInfo';
 import { AddressInfo } from './models/AddressInfo';
 
 /**
@@ -21,6 +21,7 @@ export default class Controller {
     }
 
     init() {
+        // загрузка карты
         this.mapProvider.loadMap()
             // загрузка имеющихся меток с сервера
             .then(() => this.serverProxy.getAllFeedbacks())

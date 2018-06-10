@@ -9,10 +9,6 @@ export default class Model extends EventEmitter {
 
         // текущий выбранный адрес со всеми отзывами
         this.currentAddress = null;
-
-        // текущий выбранный кластер со всеми адресами и отзывами
-        this.currentCluster = null;
-
     }
 
     getCurrentAddress() {
@@ -21,14 +17,6 @@ export default class Model extends EventEmitter {
 
     setCurrentAddress(addressInfo) {
         updateProperty(this, 'currentAddress', addressInfo);
-    }
-
-    getCurrentCluster() {
-        return this.currentCluster;
-    }
-
-    setCurrentCluster(clusterInfo) {
-        updateProperty(this, 'currentCluster', clusterInfo);
     }
 
     addAddressFeedback(newFeedback) {

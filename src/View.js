@@ -1,6 +1,5 @@
 import { EventEmitter } from './helpers';
 import addressPopupTmpl from '../views/address-popup.hbs';
-import clusterPopupTmpl from '../views/cluster-popup.hbs';
 
 /**
  * Класс представления
@@ -10,20 +9,14 @@ export default class View extends EventEmitter {
         super();
 
         this.addressPopupDiv = document.querySelector('#address-overlay');
-        this.clusterPopupDiv = document.querySelector('#cluster-overlay');
 
-        // мэппинг между именем шаблона и функцией рендера
+        // мэппинг между именем шаблона и его функцией рендера / хтмл-элементом
         this.renderMap = new Map(
             [
-                ['address-overlay', addressPopupTmpl],
-                ['cluster-overlay', clusterPopupTmpl]
-            ]);
-
-        // мэппинг между именем шаблона и его хтмл-элементом
-        this.containerMap = new Map(
-            [
-                ['address-overlay', this.addressPopupDiv],
-                ['cluster-overlay', this.clusterPopupDiv]
+                ['address', {
+                    renderFunc: addressPopupTmpl,
+                    container: this.addressPopupDiv
+                }]
             ]);
 
         this.initListeners();
@@ -31,12 +24,7 @@ export default class View extends EventEmitter {
 
     // перерендерить попап с адресом
     renderAddressPopup(addressInfo) {
-        this.render('address-overlay', addressInfo);
-    }
-
-    // перерендерить попап с кластером
-    renderClusterPopup(clusterInfo) {
-        this.render('cluster-overlay', clusterInfo);
+        this.render('address', addressInfo);
     }
 
     // открывает попап со всеми отзывами по одному адресу
@@ -47,16 +35,6 @@ export default class View extends EventEmitter {
     // закрывает попап со всеми отзывами по одному адресу
     closeAddressPopup() {
         toggleVisibility(this.addressPopupDiv, false);
-    }
-
-    // открывает попап со всеми отзывами по одному кластеру
-    openClusterPopup() {
-        toggleVisibility(this.clusterPopupDiv, true);
-    }
-
-    // закрывает попап со всеми отзывами по одному кластеру
-    closeClusterPopup() {
-        toggleVisibility(this.clusterPopupDiv, false);
     }
 
     // отправить отзыв
@@ -75,33 +53,32 @@ export default class View extends EventEmitter {
         }
     }
 
-    // клик по ссылке адреса из карусели
-    openAddressPopupFromCluster(e) {
-        e.preventDefault();
-        this.closeClusterPopup();
+    // // клик по ссылке адреса из карусели
+    // openAddressPopupFromCluster(e) {
+    //     e.preventDefault();
+    //     this.closeClusterPopup();
 
-        const addressString = e.target.getAttribute('name');
+    //     const addressString = e.target.getAttribute('name');
 
-        if (!addressString) {
-            return;
-        }
+    //     if (!addressString) {
+    //         return;
+    //     }
 
-        // TODO
-        // передать контроллеру addressCode, чтобы тот получил данные по адресу и открыл попап
-        // либо чтобы обновил данные в полях для двойных привязок и открыл попап
-    }
+    //     // TODO
+    //     // передать контроллеру addressCode, чтобы тот получил данные по адресу и открыл попап
+    //     // либо чтобы обновил данные в полях для двойных привязок и открыл попап
+    // }
 
     // Заполняет шаблон из .hbs-файла данными из переданного объекта и вставляет их в html страницы
     render(templateName, model) {
-        const renderFunc = this.renderMap.get(templateName),
-            htmlContainer = this.containerMap.get(templateName);
+        const renderInfo = this.renderMap.get(templateName);
 
-        if (!renderFunc) {
+        if (!renderInfo.renderFunc) {
             throw new Error(`Не зарегистрирован метод рендера для шаблона ${templateName}`);
-        } else if (!htmlContainer) {
+        } else if (!renderInfo.container) {
             throw new Error(`Не зарегистрирован html-контейнер для шаблона ${templateName}`);
         } else {
-            htmlContainer.innerHTML = renderFunc(model);
+            renderInfo.container.innerHTML = renderInfo.renderFunc(model);
         }
     }
 
@@ -121,24 +98,13 @@ export default class View extends EventEmitter {
 
             switch (e.target.getAttribute('id')) {
                 // закрыть попап с адресом
-                case 'popup-close-btn':
                 case 'address-close':
                     this.closeAddressPopup();
-                    break;
-                    // закрыть попап с кластером
-                case 'cluster-close-btn':
-                case 'cluster-close':
-                    this.closeClusterPopup();
                     break;
                     // отправить отзыв
                 case 'add-feedback':
                     this.sendFeedback();
                     break;
-                    // перемотка карусели влево
-
-                    // перемотка карусели вправо
-
-                    // переход на отзыв № в карусели
                 default:
                     break;
             }

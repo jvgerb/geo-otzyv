@@ -4,6 +4,7 @@ html {
     margin: 0;
     width: 100%;
     height: 100%;
+    font-family: Arial;
 }
 
 .display-none {
@@ -26,19 +27,131 @@ html {
     height: 100%;
 }
 
-#address-overlay,
-#cluster-overlay {
+#address-overlay {
+    width: 380px;
+    height: 460px;
     position: absolute;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 10px;
     top: 100px;
     left: 100px;
 }
 
+.address-header {
+    display: flex;
+    align-items: center;
+    background: #ff8663;
+    border-radius: 10px 10px 0 0;
+    background-image: url(../icons/search.png);
+    background-repeat: no-repeat;
+    background-position: 15px;
+}
+
+.address-title {
+    font-size: 12px;
+    color: #fff;
+    padding: 15px;
+    margin: 0 15px;
+}
+
 #address-close {
+    width: 13px;
+    height: 13px;
+    position: absolute;
+    top: 15px;
+    right: 13px;
     cursor: pointer;
 }
 
-.address-popup {
-    background-color: #fad876;
+#address-pin {
+    width: 13px;
+    height: 13px;
+    position: absolute;
+    top: 15px;
+    left: 13px;
+}
+
+.feedbacks {
+    height: 150px;
+    overflow: auto;
+    margin: 0 12px;
+}
+
+.empty {
+    font-size: 15px;
+    color: #3d3c3c;
+    padding: 10px;
+}
+
+.feedback-list {
+    margin: 12px;
+    overflow: auto;
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+.feedback-name,
+.feedback-place,
+.feedback-date,
+.feedback-message {
+    color: #4f4f4f;
+    font-size: 15px;
+    padding: 6px 3px 6px 0;
+}
+
+.feedback-name {
+    font-weight: bold;
+}
+
+.new-feedback {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 15px;
+    margin: 0 12px;
+}
+
+.new-feedback h2 {
+    color: #ff8663;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.new-feedback input,
+.new-feedback .textarea {
+    border-radius: 12px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #696969;
+    outline: none;
+    border: 1px solid #cecece;
+    padding: 7px;
+}
+
+.new-feedback .textarea {
+    resize: vertical;
+    font-size: 14px;
+    min-height: 50px;
+    border-radius: 10px;
+    font-family: Arial;
+}
+
+.button-container {
+    text-align: right;
+}
+
+#add-feedback {
+    background: #ff8663;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 17px;
+    color: #fff;
+    margin-bottom: 15px;
+    width: 95px;
+    font-size: 15px;
 }
 
 .balloon_header {

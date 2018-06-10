@@ -1,32 +1,37 @@
-﻿<div class="address-popup">
-    <div class="address-header">
-        <div class="address">{{addressString}}</div>
-        <div class="popup-close-btn">
-            <img src="src/icons/x.png" alt="x" id="address-close"/>
-        </div>
-    </div>
+﻿
+<div class="address-header">
+    <img src="../src/icons/pin.png" id="address-pin"/>
+    <div class="address-title">{{addressString}}</div>
+    <img src="../src/icons/x.png" alt="x" id="address-close"/>
+</div>
 
-    <div class="feedbacks">
-    {{#if hasNoFeedbacks}}
-        <div class="empty">Отзывов пока нет</div>
-    {{else}}
+<div class="feedbacks">
+{{#if hasNoFeedbacks}}
+    <div class="empty">Отзывов пока нет...</div>
+{{else}}
+<ul class="feedback-list">
     {{#each feedbacks}}
-        <div class="feedback">
-            <div class="feedback-header">
-                <div class="user-name">{{userName}}</div>
-                <div class="place">{{place}}</div>
-                <div class="date">{{dateFormatted}}</div>
+        <li class="feedback-item">
+            <div class="feedback-title">
+                <span class="feedback-name">{{userName}}</span>
+                <span class="feedback-place">{{place}}</span>
+                <span class="feedback-date">{{dateFormatted}}</span>
             </div>
-            <div class="feedback-msg">{{message}}</div>
-        </div>
+            <div class="feedback-message">
+                {{message}}
+            </div>
+        </li>
     {{/each}}
-    {{/if}}
-    </div>
-    <div class="new-feedback">
-        <h3>ВАШ ОТЗЫВ</h3>
-        <input id="new-user" type="text" placeholder="Ваше имя" required/>
-        <input id="new-place" type="text" placeholder="Укажите место" required/>
-        <input id="new-opinion" type="textarea" placeholder="Поделитесь впечатлениями"  maxlength="500" required/>
+</ul>
+ {{/if}}
+</div>
+
+<div class="new-feedback">
+    <h2>ВАШ ОТЗЫВ</h2>
+    <input id="new-user" type="text" placeholder="Ваше имя" required/>
+    <input id="new-place" type="text" placeholder="Укажите место" required/>
+    <textarea class="textarea" id="new-opinion" placeholder="Поделитесь впечатлениями"  maxlength="500" required></textarea>
+    <div class="button-container">
         <button id="add-feedback">Добавить</button>
-    </div>
+    </div>   
 </div>
