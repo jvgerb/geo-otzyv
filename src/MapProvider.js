@@ -1,4 +1,5 @@
 import { EventEmitter } from './helpers';
+import { EPROTONOSUPPORT } from 'constants';
 
 export default class Model extends EventEmitter {
     constructor() {
@@ -21,9 +22,11 @@ export default class Model extends EventEmitter {
                     searchControlProvider: 'yandex#search'
                 });
                 this.clusterer = new ymaps.Clusterer({
-                    preset: 'islands#invertedVioletClusterIcons',
+                    preset: 'islands#invertedDarkorangeClusterIcons',
                     clusterDisableClickZoom: true,
-                    openBalloonOnClick: false
+                    openBalloonOnClick: true,
+                    balloonContentBodyLayout: 'cluster#balloonCarouselContent'
+
                 });
 
                 this.myMap.geoObjects.add(this.clusterer);
@@ -31,26 +34,38 @@ export default class Model extends EventEmitter {
                 // замена дефолтного курсора
                 this.myMap.cursors.push('pointer');
 
-                const self = this;
-
-                this.myMap.events.add('click', function(e) {
-                    // Получение координат щелчка
-                    var coords = e.get('coords');
-
-                    getGeoCode(coords)
-                        .then((address) => {
-                            self.emit('currentAddressChanged', { address: address });
-                        })
-                        .catch(err => console.log(err));
-                });
+                addGeoObjectClickHandler(this.myMap, this);
             });
+    }
+
+    addPlacemark(coords) {
+        const pm = new ymaps.Placemark(coords, {}, { preset: 'islands#darkOrangeDotIcon' });
+
+        addGeoObjectClickHandler(pm, this);
+
+        this.clusterer.add(pm);
+    }
+
+    addPlacemarks(feedbacks) {
+        const placemarks = feedbacks.map(item => {
+            const pm = new ymaps.Placemark(item.coordinates, {}, { preset: 'islands#darkOrangeDotIcon' })
+
+            addGeoObjectClickHandler(pm, this);
+
+            return pm;
+        });
+
+        this.clusterer.add(placemarks);
     }
 }
 
 // private methods
-
-function getGeoCode(addressCode) {
-    return ymaps.geocode(addressCode)
+/**
+ * Получение адреса по координатам
+ * @param {number[2]} coords - Координаты объекта
+ */
+function getGeoCode(coords) {
+    return ymaps.geocode(coords)
         .then(result => {
             const points = result.geoObjects.toArray();
 
@@ -65,4 +80,22 @@ function getGeoCode(addressCode) {
             return null;
         })
         .catch(err => console.log(err));
+}
+
+/**
+ * Добавление обработчика клика для геообъекта 
+ * @param {object} obj - геообъект (карта или метка)
+ * @param {MapProvider} map - Объект провайдера карты, оповещающий о событии
+ */
+function addGeoObjectClickHandler(obj, map) {
+    obj.events.add('click', function(e) {
+        // Получение координат щелчка
+        var coords = e.get('coords');
+
+        getGeoCode(coords)
+            .then((address) => {
+                map.emit('currentAddressChanged', { addressString: address, coordinates: coords });
+            })
+            .catch(err => console.log(err));
+    });
 }

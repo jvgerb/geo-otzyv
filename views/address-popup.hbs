@@ -7,7 +7,7 @@
     </div>
 
     <div class="feedbacks">
-    {{#if hasNoFeedbacks()}}
+    {{#if hasNoFeedbacks}}
         <div class="empty">Отзывов пока нет</div>
     {{else}}
     {{#each feedbacks}}
@@ -15,7 +15,7 @@
             <div class="feedback-header">
                 <div class="user-name">{{userName}}</div>
                 <div class="place">{{place}}</div>
-                <div class="date">{{date}}</div>
+                <div class="date">{{dateFormatted}}</div>
             </div>
             <div class="feedback-msg">{{message}}</div>
         </div>

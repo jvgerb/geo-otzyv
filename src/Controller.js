@@ -25,18 +25,18 @@ export default class Controller {
             // загрузка имеющихся меток с сервера
             .then(() => this.serverProxy.getAllFeedbacks())
             .then((feedbacks) => {
-
-                return feedbacks;
+                // добавляем метку на карту
+                this.mapProvider.addPlacemarks(feedbacks);
             })
             .catch(err => console.log(err));
     }
 
-    showAddressInfo(addressString) {
+    showAddressInfo(addressString, coordinates) {
         // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
         new Promise((resolve) => resolve(this.serverProxy.getAddressFeedbacks(addressString)))
             .then((fb) => {
                 const feedbacks = fb.map(f => f.feedback);
-                const addressInfo = new AddressInfo(addressString, feedbacks);
+                const addressInfo = new AddressInfo(addressString, coordinates, feedbacks);
 
                 this.model.setCurrentAddress(addressInfo);
                 this.view.openAddressPopup();
@@ -44,24 +44,24 @@ export default class Controller {
             .catch((e) => console.log(e));
     }
 
-    showClusterInfo(info) {
-        // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
-        new Promise((resolve) =>
-            resolve(this.serverProxy.getClusterFeedbacks(info.addresses))
-            .then((clusterFeedbacks) => {
-                // const addressInfo = new AddressInfo(info.address, feedbacks);
+    // showClusterInfo(info) {
+    //     // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
+    //     new Promise((resolve) =>
+    //         resolve(this.serverProxy.getClusterFeedbacks(info.addresses))
+    //         .then((clusterFeedbacks) => {
+    //             // const addressInfo = new AddressInfo(info.address, feedbacks);
 
-                // this.model.setCurrentCluster(addressInfo);
-                this.view.openClusterPopup(clusterFeedbacks);
-            })
-            .catch((e) => console.log(e)));
-    }
+    //             // this.model.setCurrentCluster(addressInfo);
+    //             this.view.openClusterPopup(clusterFeedbacks);
+    //         })
+    //         .catch((e) => console.log(e)));
+    // }
 
     addNewFeedback(newFeedback) {
         const currentAddress = this.model.getCurrentAddress();
 
-        if (currentAddress && currentAddress.addressString) {
-            const nf = new PlaceFeedback(currentAddress.addressString,
+        if (currentAddress) {
+            const nf = new PlaceFeedback(currentAddress.addressString, currentAddress.coordinates,
                 newFeedback.place, newFeedback.opinion, newFeedback.user, new Date());
 
             // отправляем отзыв на сервер
@@ -69,6 +69,9 @@ export default class Controller {
 
             // добавляем отзыв к списку текущих отзывов модели
             this.model.addAddressFeedback(nf.feedback);
+
+            // добавляем метку на карту
+            this.mapProvider.addPlacemark(currentAddress.coordinates);
         }
     }
 
@@ -84,8 +87,8 @@ export default class Controller {
         });
 
         // подписка контроллера на изменение выбранного адреса на карте
-        this.mapProvider.on('currentAddressChanged', (info) => {
-            this.showAddressInfo(info.address);
+        this.mapProvider.on('currentAddressChanged', ({ addressString, coordinates }) => {
+            this.showAddressInfo(addressString, coordinates);
         })
 
         // подписка контроллера на добавление нового отзыва

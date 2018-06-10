@@ -60,11 +60,11 @@ export default class ServerProxy {
 
     /**
      * Выборка всех отзывов по кластеру
-     * @param {[string]} addressCodes - массив геокодов адресов, для которых надо выполнять поиск
+     * @param {[string]} addressStrings - массив адресов, для которых надо выполнять поиск
      * @returns {[PlaceFeedback]} - возвращает массив отзывов в формате PlaceFeedback
      */
-    getClusterFeedbacks(addressCodes) {
-        if (!addressCodes || addressCodes.length === 0) {
+    getClusterFeedbacks(addressStrings) {
+        if (!addressStrings || addressStrings.length === 0) {
             return [];
         }
         const feedbacks = this.getAllFeedbacks();
@@ -74,7 +74,7 @@ export default class ServerProxy {
         }
 
         const filtered = feedbacks
-            .filter(item => item.address.addressCode && addressCodes.includes(item.address.addressCode))
+            .filter(item => addressStrings.includes(item.address.addressString))
             .sort(feedbackSort);
 
         if (filtered.length === 0) {
