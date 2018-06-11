@@ -36,22 +36,6 @@ export default class Model extends EventEmitter {
                 this.myMap.cursors.push('pointer');
 
                 addGeoObjectClickHandler(this.myMap, this);
-
-                // const self = this;
-
-                // this.clusterer.events.add('balloonopen', function(e) {
-                //     const t = self.clusterer.geoObjects;
-
-                //     // var objectState = this.clusterer.getObjectState(this.clusterer.geoObjects[0]);
-
-                //     // if (objectState.isClustered) {
-                //     //     // Если метка находится в кластере, выставим ее в качестве активного объекта.
-                //     //     // Тогда она будет "выбрана" в открытом балуне кластера.
-                //     //     objectState.cluster.state.set('activeObject', this.clusterer.geoObjects[0]);
-                //     //     // clusterer.balloon.open(objectState.cluster);
-                //     // }
-                //     //    this.clusterer.properties.set('balloonContent', 'newContent');
-                // });
             });
     }
 
@@ -102,10 +86,11 @@ function addGeoObjectClickHandler(obj, map) {
     obj.events.add('click', function(e) {
         // Получение координат щелчка
         var coords = e.get('coords');
+        var position = e.get('position');
 
         getGeoCode(coords)
             .then((address) => {
-                map.emit('currentAddressChanged', { addressString: address, coordinates: coords });
+                map.emit('currentAddressChanged', { addressString: address, coordinates: coords, position: position });
             })
             .catch(err => console.log(err));
     });

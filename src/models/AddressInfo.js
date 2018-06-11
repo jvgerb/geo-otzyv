@@ -52,8 +52,7 @@ export function AddressInfo(addressString, coordinates, feedbacks) {
 }
 
 function formatDate(date) {
-    const m = date.getMonth();
-    const d = date.getDate();
 
-    return `${date.getFullYear()}.${(m <= 9 ? '0' + m : m) }.${(d <= 9 ? '0' + d : d) } ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    const zf = (s) => s <= 9 ? '0' + s : s;
+    return `${date.getFullYear()}.${zf(date.getMonth())}.${zf(date.getDate())} ${zf(date.getHours())}:${zf(date.getMinutes())}:${zf(date.getSeconds())}`;
 }

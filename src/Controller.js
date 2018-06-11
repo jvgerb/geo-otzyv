@@ -32,7 +32,7 @@ export default class Controller {
             .catch(err => console.log(err));
     }
 
-    showAddressInfo(addressString, coordinates) {
+    showAddressInfo(addressString, coordinates, position) {
         // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
         new Promise((resolve) => resolve(this.serverProxy.getAddressFeedbacks(addressString)))
             .then((fb) => {
@@ -40,7 +40,8 @@ export default class Controller {
                 const addressInfo = new AddressInfo(addressString, coordinates, feedbacks);
 
                 this.model.setCurrentAddress(addressInfo);
-                this.view.openAddressPopup();
+                this.mapProvider.closeClusterBalloon();
+                this.view.openAddressPopup(getBalloonPosition(position));
             })
             .catch((e) => console.log(e));
     }
@@ -63,20 +64,6 @@ export default class Controller {
         }
     }
 
-    showAddressFromCluster(addressString) {
-        // здесь будет обращение к другому серверу за данными, которое выполняется асинхронно
-        new Promise((resolve) => resolve(this.serverProxy.getAddressFeedbacks(addressString)))
-            .then((fb) => {
-                const feedbacks = fb.map(f => f.feedback);
-                const addressInfo = new AddressInfo(addressString, null, feedbacks);
-
-                this.model.setCurrentAddress(addressInfo);
-                this.mapProvider.closeClusterBalloon();
-                this.view.openAddressPopup();
-            })
-            .catch((e) => console.log(e));
-    }
-
     initListeners() {
         // подписка view на обновление данных о текущем выбранном адресе в модели
         this.model.on('currentAddressUpdated', (addressInfo) => {
@@ -84,8 +71,8 @@ export default class Controller {
         });
 
         // подписка контроллера на изменение выбранного адреса на карте
-        this.mapProvider.on('currentAddressChanged', ({ addressString, coordinates }) => {
-            this.showAddressInfo(addressString, coordinates);
+        this.mapProvider.on('currentAddressChanged', ({ addressString, coordinates, position }) => {
+            this.showAddressInfo(addressString, coordinates, position);
         })
 
         // подписка контроллера на добавление нового отзыва
@@ -94,8 +81,15 @@ export default class Controller {
         });
 
         // подписка контроллера на клик по ссылке в кластере
-        this.view.on('clusterLinkClicked', (addressString) => {
-            this.showAddressFromCluster(addressString);
+        this.view.on('clusterLinkClicked', ({ addressString, position }) => {
+            this.showAddressInfo(addressString, null, position);
         });
     }
+}
+
+/**
+ * Расчет позиции попапа
+ */
+function getBalloonPosition([clickX, clickY]) {
+    return { x: clickX + 'px', y: clickY + 'px' }
 }

@@ -28,7 +28,9 @@ export default class View extends EventEmitter {
     }
 
     // открывает попап со всеми отзывами по одному адресу
-    openAddressPopup() {
+    openAddressPopup(position) {
+        this.addressPopupDiv.style.left = position.x;
+        this.addressPopupDiv.style.top = position.y;
         toggleVisibility(this.addressPopupDiv, true);
     }
 
@@ -53,17 +55,6 @@ export default class View extends EventEmitter {
         }
     }
 
-    // клик по ссылке адреса из карусели
-    openAddressPopupFromCluster(a) {
-        const addressString = a.innerText;
-
-        if (!addressString) {
-            return;
-        }
-
-        this.emit('clusterLinkClicked', addressString);
-    }
-
     // Заполняет шаблон из .hbs-файла данными из переданного объекта и вставляет их в html страницы
     render(templateName, model) {
         const renderInfo = this.renderMap.get(templateName);
@@ -85,7 +76,7 @@ export default class View extends EventEmitter {
             // клик по ссылке адреса из карусели
             if (e.target.classList.contains('balloon-link')) {
                 e.preventDefault();
-                this.openAddressPopupFromCluster(e.target);
+                this.emit('clusterLinkClicked', { addressString: e.target.innerText, position: [e.clientX, e.clientY] });
 
                 return;
             }
