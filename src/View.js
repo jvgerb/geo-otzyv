@@ -29,8 +29,10 @@ export default class View extends EventEmitter {
 
     // открывает попап со всеми отзывами по одному адресу
     openAddressPopup(position) {
-        this.addressPopupDiv.style.left = position.x;
-        this.addressPopupDiv.style.top = position.y;
+        const newPosition = getBalloonPosition(position, POPUP_HEIGHT, POPUP_WIDTH);
+
+        this.addressPopupDiv.style.left = newPosition.x;
+        this.addressPopupDiv.style.top = newPosition.y;
         toggleVisibility(this.addressPopupDiv, true);
     }
 
@@ -110,3 +112,46 @@ function toggleVisibility(element, condition) {
     }
     element.classList.add('display-none');
 }
+
+/**
+ * Расчет позиции попапа
+ */
+function getBalloonPosition([clickX, clickY], popupWidth, popupHeight) {
+    const windowWidth = window.innerWidth + window.scrollX;
+    const windowHeight = window.innerHeight + window.scrollY;
+
+    let popupLeft = 0;
+    let popupTop = 0;
+
+    if (clickX + popupWidth > windowWidth) {
+        popupLeft = clickX - popupWidth
+    } else {
+        popupLeft = clickX;
+    }
+
+    if (clickY + popupHeight > windowHeight) {
+        popupTop = clickY - popupHeight
+    } else {
+        popupTop = clickY
+    }
+
+    if (popupLeft < window.scrollX) {
+        popupLeft = window.scrollX;
+    }
+
+    if (popupTop < window.scrollY) {
+        popupTop = window.scrollY;
+    }
+
+    if (popupLeft < 0 || popupLeft == undefined) {
+        popupLeft = 0;
+    }
+    if (popupTop < 0 || popupTop == undefined) {
+        popupTop = 0;
+    }
+
+    return { x: popupLeft + 'px', y: popupTop + 'px' }
+}
+
+var POPUP_HEIGHT = 380;
+var POPUP_WIDTH = 500;

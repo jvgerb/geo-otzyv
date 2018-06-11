@@ -41,7 +41,7 @@ export default class Controller {
 
                 this.model.setCurrentAddress(addressInfo);
                 this.mapProvider.closeClusterBalloon();
-                this.view.openAddressPopup(getBalloonPosition(position));
+                this.view.openAddressPopup(position);
             })
             .catch((e) => console.log(e));
     }
@@ -85,11 +85,4 @@ export default class Controller {
             this.showAddressInfo(addressString, null, position);
         });
     }
-}
-
-/**
- * Расчет позиции попапа
- */
-function getBalloonPosition([clickX, clickY]) {
-    return { x: clickX + 'px', y: clickY + 'px' }
 }

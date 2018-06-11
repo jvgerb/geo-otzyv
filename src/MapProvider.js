@@ -127,5 +127,18 @@ function createPlacemark(fb, map) {
 
     addGeoObjectClickHandler(pm, map);
 
+    pm.events.add('balloonopen', function(e) {
+        alert('balloonopen');
+        // Получение координат щелчка
+        var coords = e.get('coords');
+        var position = e.get('position');
+
+        getGeoCode(coords)
+            .then((address) => {
+                map.emit('currentAddressChanged', { addressString: address, coordinates: coords, position: position });
+            })
+            .catch(err => console.log(err));
+    });
+
     return pm;
 }
